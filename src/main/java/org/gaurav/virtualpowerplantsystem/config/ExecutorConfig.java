@@ -12,7 +12,7 @@ public class ExecutorConfig {
 
     @Bean(name = "batteryTaskExecutor")
     public Executor batteryTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        var executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(10);
         executor.setMaxPoolSize(50);
         executor.setQueueCapacity(500);

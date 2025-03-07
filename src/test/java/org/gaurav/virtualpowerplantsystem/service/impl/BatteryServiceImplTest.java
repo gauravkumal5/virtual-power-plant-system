@@ -2,7 +2,6 @@ package org.gaurav.virtualpowerplantsystem.service.impl;
 
 import org.gaurav.virtualpowerplantsystem.builder.BatteryBuilder;
 import org.gaurav.virtualpowerplantsystem.config.BatchConfig;
-import org.gaurav.virtualpowerplantsystem.model.dto.BatteryDto;
 import org.gaurav.virtualpowerplantsystem.model.dto.BatteryGridDto;
 import org.gaurav.virtualpowerplantsystem.model.entity.Battery;
 import org.gaurav.virtualpowerplantsystem.model.request.BatteriesFilterRequest;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.IntStream;
 
@@ -56,14 +54,14 @@ class BatteryServiceImplTest {
         List<BatteryRequest> batteryRequests = new ArrayList<>();
         IntStream.range(0, 2500).
                 forEach(i -> batteryRequests.add(BatteryRequest.builder().name("Midland").postcode("12345").capacity(100).build()));
-        BatteryListRequest batteryListRequest = new BatteryListRequest(batteryRequests);
 
-        List<Battery> savedBatteries = batteryRequests.stream().map(BatteryBuilder::buildBattery).toList();
+        var batteryListRequest = BatteryListRequest.builder().batteryRequestList(batteryRequests).build();
+        var savedBatteries = batteryRequests.stream().map(BatteryBuilder::buildBattery).toList();
 
         when(batchConfig.getSize()).thenReturn(1000);
         when(batteryRepository.batchInsert(anyList(), anyInt())).thenReturn(savedBatteries);
-        CompletableFuture<List<BatteryDto>> listCompletableFuture = batteryService.saveBatteries(batteryListRequest);
-        List<BatteryDto> batteryDtos = listCompletableFuture.join();
+        var listCompletableFuture = batteryService.saveBatteries(batteryListRequest);
+        var batteryDtos = listCompletableFuture.join();
 
         assertEquals(batteryDtos.size(), savedBatteries.size());
         verify(batteryRepository, times(1)).batchInsert(anyList(), anyInt());
@@ -71,16 +69,17 @@ class BatteryServiceImplTest {
 
     @Test
     void whenRequestedFilterData_findAll_thenBatteryGridFetchSuccess() {
-        BatteriesFilterRequest filterRequest = new BatteriesFilterRequest();
-        filterRequest.setStartPostCode("1000");
-        filterRequest.setEndPostCode("2000");
-        filterRequest.setMinCapacity(50);
-        filterRequest.setMaxCapacity(100);
+        var filterRequest = BatteriesFilterRequest.builder()
+                .startPostCode("1000")
+                .endPostCode("2000")
+                .minCapacity(50)
+                .maxCapacity(100)
 
-        Battery batteryOne = Battery.builder().name("Cannington").capacity(60).build();
-        Battery batteryTwo = Battery.builder().name("Midland").capacity(70).build();
-        Battery batteryThree = Battery.builder().name("Hay Street").capacity(80).build();
-        List<Battery> batteryList = Arrays.asList(batteryOne, batteryTwo, batteryThree);
+                .build();
+        var batteryOne = Battery.builder().name("Cannington").capacity(60).build();
+        var batteryTwo = Battery.builder().name("Midland").capacity(70).build();
+        var batteryThree = Battery.builder().name("Hay Street").capacity(80).build();
+        var batteryList = Arrays.asList(batteryOne, batteryTwo, batteryThree);
 
         when(batteryRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(batteryList);
         BatteryGridDto batteryGridDto = batteryService.getBatteriesGrid(filterRequest);
@@ -90,14 +89,15 @@ class BatteryServiceImplTest {
 
     @Test
     void whenNoDataInDatabaseForFilterData_findAll_thenEmptyBatteryGrid() {
-        BatteriesFilterRequest filterRequest = new BatteriesFilterRequest();
-        filterRequest.setStartPostCode("1000");
-        filterRequest.setEndPostCode("2000");
-        filterRequest.setMinCapacity(50);
-        filterRequest.setMaxCapacity(100);
+        var filterRequest = BatteriesFilterRequest.builder()
+                .startPostCode("1000")
+                .endPostCode("2000")
+                .minCapacity(50)
+                .maxCapacity(100)
+                .build();
 
         when(batteryRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(Collections.emptyList());
-        BatteryGridDto batteryGridDto = batteryService.getBatteriesGrid(filterRequest);
+        var batteryGridDto = batteryService.getBatteriesGrid(filterRequest);
         assertNull(batteryGridDto);
 
     }

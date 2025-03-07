@@ -8,13 +8,11 @@ import org.gaurav.virtualpowerplantsystem.model.dto.BatteryGridDto;
 import org.gaurav.virtualpowerplantsystem.model.entity.Battery;
 import org.gaurav.virtualpowerplantsystem.model.request.BatteriesFilterRequest;
 import org.gaurav.virtualpowerplantsystem.model.request.BatteryListRequest;
-import org.gaurav.virtualpowerplantsystem.model.request.BatteryRequest;
 import org.gaurav.virtualpowerplantsystem.repository.BatteryRepository;
 import org.gaurav.virtualpowerplantsystem.service.BatteryService;
 import org.gaurav.virtualpowerplantsystem.specification.BatterySearchSpecification;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,11 +38,11 @@ public class BatteryServiceImpl implements BatteryService {
     @Override
     public CompletableFuture<List<BatteryDto>> saveBatteries(BatteryListRequest batteryListRequest) {
 
-        List<BatteryRequest> batteryRequestList = batteryListRequest.getBatteryRequestList();
-        int batchSize = batchConfig.getSize();
+        var batteryRequestList = batteryListRequest.getBatteryRequestList();
+        var batchSize = batchConfig.getSize();
 
-        List<Battery> batteries = batteryRequestList.parallelStream().map(BatteryBuilder::buildBattery).toList();
-        CompletableFuture<List<Battery>> listCompletableFuture =
+        var batteries = batteryRequestList.parallelStream().map(BatteryBuilder::buildBattery).toList();
+        var listCompletableFuture =
                 CompletableFuture.supplyAsync(() -> batteryRepository.batchInsert(batteries, batchSize), executor);
         return listCompletableFuture.thenApply(v -> v.parallelStream().map(BatteryBuilder::buildBatteryDto).toList());
     }
@@ -52,16 +50,16 @@ public class BatteryServiceImpl implements BatteryService {
     @Override
     public BatteryGridDto getBatteriesGrid(BatteriesFilterRequest batteriesFilterRequest) {
 
-        Specification<Battery> spec = BatterySearchSpecification.createSpecification(batteriesFilterRequest);
-        Sort sort = Sort.by(Sort.Order.asc("name"));
-        List<Battery> batteries = batteryRepository.findAll(spec, sort);
-        List<String> names = batteries.stream().map(Battery::getName).toList();
+        var spec = BatterySearchSpecification.createSpecification(batteriesFilterRequest);
+        var sort = Sort.by(Sort.Order.asc("name"));
+        var batteries = batteryRepository.findAll(spec, sort);
+        var names = batteries.stream().map(Battery::getName).toList();
 
         if (names.isEmpty()) {
             return null;
         }
-        int totalCapacity = batteries.stream().mapToInt(Battery::getCapacity).sum();
-        double averageCapacity = totalCapacity / (double) batteries.size();
+        var totalCapacity = batteries.stream().mapToInt(Battery::getCapacity).sum();
+        var averageCapacity = (double) totalCapacity /  batteries.size();
         return BatteryBuilder.buildBatteryGridDto(names, totalCapacity, averageCapacity);
 
     }

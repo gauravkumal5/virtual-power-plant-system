@@ -10,15 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.ActiveProfiles;
-import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class BatteryRepositoryRepositoryIntegrationTest extends ContainerDbConnection {
+class BatteryRepositoryIntegrationTest extends ContainerDbConnection {
 
     @Autowired
     private BatteryRepository batteryRepository;
@@ -26,8 +25,8 @@ class BatteryRepositoryRepositoryIntegrationTest extends ContainerDbConnection {
     @Override
     @BeforeEach
     public void setUp() {
-      Battery batteryOne =Battery.builder().name("Cannington").postCode("1000").capacity(50).build();
-      Battery batteryTwo =Battery.builder().name("Midland").postCode("9000").capacity(75).build();
+        var batteryOne = Battery.builder().name("Cannington").postCode("1000").capacity(50).build();
+        var batteryTwo = Battery.builder().name("Midland").postCode("9000").capacity(75).build();
         batteryRepository.save(batteryOne);
         batteryRepository.save(batteryTwo);
     }
@@ -35,13 +34,10 @@ class BatteryRepositoryRepositoryIntegrationTest extends ContainerDbConnection {
     @Test
     void whenValidFilter_findAllBySpecAndSort_thenReturnsBatteriesWithinSpecifiedRange() {
 
-        BatteriesFilterRequest filterRequest = new BatteriesFilterRequest();
-        filterRequest.setMinCapacity(50);
-        filterRequest.setMaxCapacity(75);
-
-        Specification<Battery> spec = BatterySearchSpecification.createSpecification(filterRequest);
-        Sort sort = Sort.by(Sort.Order.asc("name"));
-        List<Battery> batteries = batteryRepository.findAll(spec, sort);
+        var batteriesFilterRequest = BatteriesFilterRequest.builder().maxCapacity(50).maxCapacity(75).build();
+        var specification = BatterySearchSpecification.createSpecification(batteriesFilterRequest);
+        var sort = Sort.by(Sort.Order.asc("name"));
+        var batteries = batteryRepository.findAll(specification, sort);
 
         assertThat(batteries).hasSize(2);
         assertThat(batteries).extracting(Battery::getName).containsExactlyInAnyOrder("Cannington", "Midland");
@@ -50,11 +46,10 @@ class BatteryRepositoryRepositoryIntegrationTest extends ContainerDbConnection {
     @Test
     void whenNoDataInDatabaseForFilterData_findAllBySpecAndSort_thenReturnsEmptyList() {
 
-        BatteriesFilterRequest filterRequest = new BatteriesFilterRequest();
-        filterRequest.setMinCapacity(100);
-        Specification<Battery> spec = BatterySearchSpecification.createSpecification(filterRequest);
-        Sort sort = Sort.by(Sort.Order.asc("name"));
-        List<Battery> batteries = batteryRepository.findAll(spec, sort);
+        var filterRequest = BatteriesFilterRequest.builder().minCapacity(100).build();
+        var spec = BatterySearchSpecification.createSpecification(filterRequest);
+        var sort = Sort.by(Sort.Order.asc("name"));
+        var batteries = batteryRepository.findAll(spec, sort);
         assertThat(batteries).isEmpty();
     }
 }

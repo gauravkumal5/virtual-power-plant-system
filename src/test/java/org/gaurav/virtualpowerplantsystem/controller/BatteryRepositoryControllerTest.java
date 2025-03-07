@@ -41,10 +41,10 @@ class BatteryRepositoryControllerTest {
 
     @Test
     void whenValidBatteries_addedBatteries_thenReturnSuccess() throws Exception {
-        BatteryRequest batteryRequest = BatteryRequest.builder().name("Cannington").postcode("12345").capacity(100).build();
-        List<BatteryRequest> batteryRequestList = List.of(batteryRequest);
+        var batteryRequest = BatteryRequest.builder().name("Cannington").postcode("12345").capacity(100).build();
+        var batteryRequestList = List.of(batteryRequest);
 
-        BatteryListRequest batteryListRequest = BatteryListRequest.builder().batteryRequestList(batteryRequestList).build();
+        var batteryListRequest = BatteryListRequest.builder().batteryRequestList(batteryRequestList).build();
         List<BatteryDto> batteryDtoList = new ArrayList<>();
 
         when(batteryService.saveBatteries(any(BatteryListRequest.class)))
@@ -57,7 +57,7 @@ class BatteryRepositoryControllerTest {
 
     @Test
     void whenInvalidBatteries_addedBatteries_thenReturnInvalidBatteryResponse() throws Exception {
-        BatteryListRequest batteryListRequest = BatteryListRequest.builder().batteryRequestList(List.of(new BatteryRequest())).build();
+        var batteryListRequest = BatteryListRequest.builder().batteryRequestList(List.of(new BatteryRequest())).build();
 
         mockMvc.perform(post("/battery/save")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -67,7 +67,7 @@ class BatteryRepositoryControllerTest {
 
     @Test
     void whenEmptyList_addedBatteries_thenReturnInvalidListResponse() throws Exception {
-        BatteryListRequest batteryListRequest = BatteryListRequest.builder().batteryRequestList(Collections.emptyList()).build();
+        var batteryListRequest = BatteryListRequest.builder().batteryRequestList(Collections.emptyList()).build();
 
         mockMvc.perform(post("/battery/save")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,10 +77,10 @@ class BatteryRepositoryControllerTest {
 
     @Test
     void whenExceptionOccurred_addedBatteries_thenReturnHandledResponse() throws Exception {
-        BatteryRequest batteryRequest = BatteryRequest.builder().name("Cannington").postcode("12345").capacity(100).build();
-        List<BatteryRequest> batteryRequestList = List.of(batteryRequest);
+        var batteryRequest = BatteryRequest.builder().name("Cannington").postcode("12345").capacity(100).build();
+        var batteryRequestList = List.of(batteryRequest);
 
-        BatteryListRequest batteryListRequest = new BatteryListRequest();
+        var batteryListRequest = new BatteryListRequest();
         batteryListRequest.setBatteryRequestList(batteryRequestList);
 
         when(batteryService.saveBatteries(any())).thenThrow(new RuntimeException("Service failure"));
@@ -92,8 +92,8 @@ class BatteryRepositoryControllerTest {
 
     @Test
     void whenValidFilter_getBatteriesGrid_thenReturnsBatteryGridResponse() throws Exception {
-        BatteriesFilterRequest filterRequest = BatteriesFilterRequest.builder().startPostCode("12345").build();
-        BatteryGridDto gridResponse = BatteryGridDto.builder().totalCapacity(5000).build();
+        var filterRequest = BatteriesFilterRequest.builder().startPostCode("12345").build();
+        var gridResponse = BatteryGridDto.builder().totalCapacity(5000).build();
 
         when(batteryService.getBatteriesGrid(any())).thenReturn(gridResponse);
         mockMvc.perform(post("/battery/grid")
@@ -105,7 +105,7 @@ class BatteryRepositoryControllerTest {
 
     @Test
     void whenInvalidFilter_getBatteriesGrid_thenReturnInvalidFilterResponse() throws Exception {
-        BatteriesFilterRequest filterRequest = BatteriesFilterRequest.builder().startPostCode("12345S").build();
+        var filterRequest = BatteriesFilterRequest.builder().startPostCode("12345S").build();
         mockMvc.perform(post("/battery/grid")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filterRequest)))
@@ -114,7 +114,7 @@ class BatteryRepositoryControllerTest {
 
     @Test
     void whenExceptionOccurred_getBatteriesGrid_thenReturnResponse() throws Exception {
-        BatteriesFilterRequest filterRequest = new BatteriesFilterRequest();
+        var filterRequest = new BatteriesFilterRequest();
         when(batteryService.getBatteriesGrid(any())).thenThrow(new RuntimeException("Service failure"));
 
         mockMvc.perform(post("/battery/grid")
@@ -122,6 +122,4 @@ class BatteryRepositoryControllerTest {
                         .content(objectMapper.writeValueAsString(filterRequest)))
                 .andExpect(status().isInternalServerError());
     }
-
-
 }

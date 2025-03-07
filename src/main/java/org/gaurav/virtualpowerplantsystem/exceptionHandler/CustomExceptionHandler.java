@@ -22,11 +22,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        List<String> details = ex.getBindingResult().getAllErrors().stream()
+       var details = ex.getBindingResult().getAllErrors().stream()
                 .map(ObjectError::getDefaultMessage)
                 .toList();
 
-        ApiResponse<List<String>> validationFailed = new ApiResponse<>("Validation Failed", details);
+       var validationFailed = new ApiResponse<>("Validation Failed", details);
         return new ResponseEntity<>(validationFailed, HttpStatus.BAD_REQUEST);
     }
 

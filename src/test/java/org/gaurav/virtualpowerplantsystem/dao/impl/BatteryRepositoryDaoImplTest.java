@@ -35,7 +35,7 @@ class BatteryRepositoryDaoImplTest {
 
     @Test
     void whenValidBatchInsert_batchInsert_thenPersistInBatchSuccess() {
-        List<Battery> result = batteryRepository.batchInsert(batteryList, 2);
+        var result = batteryRepository.batchInsert(batteryList, 2);
 
         assertEquals(batteryList.size(), result.size());
         verify(entityManager, times(3)).persist(any(Battery.class));

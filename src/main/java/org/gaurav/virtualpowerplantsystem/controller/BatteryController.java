@@ -29,17 +29,17 @@ public class BatteryController {
 
     @PostMapping("/save")
     public CompletableFuture<ResponseEntity<ApiResponse<List<BatteryDto>>>> addBatteries(@Valid @RequestBody BatteryListRequest batteryListRequest) {
-        CompletableFuture<List<BatteryDto>> listCompletableFuture = batteryService.saveBatteries(batteryListRequest);
-        return listCompletableFuture.thenApply(batteryDtos -> ResponseUtility.createdResponse("Batteries added successfully", batteryDtos));
+        var completableFuture = batteryService.saveBatteries(batteryListRequest);
+        return completableFuture.thenApply(batteryDtos -> ResponseUtility.createdResponse("Batteries added successfully", batteryDtos));
     }
 
     @PostMapping("/grid")
     public ResponseEntity<ApiResponse<BatteryGridDto>> getBatteriesGrid(@Valid @RequestBody BatteriesFilterRequest batteriesFilterRequest) {
-        BatteryGridDto batteryGridDto = batteryService.getBatteriesGrid(batteriesFilterRequest);
-        if (batteryGridDto == null) {
+        var batteriesGrid = batteryService.getBatteriesGrid(batteriesFilterRequest);
+        if (batteriesGrid == null) {
             return ResponseUtility.okResponse("Battery grid not found for requested filter.");
         }
-        return ResponseUtility.okWithDataResponse("Battery grid fetched successfully", batteryGridDto);
+        return ResponseUtility.okWithDataResponse("Battery grid fetched successfully", batteriesGrid);
     }
 
 }

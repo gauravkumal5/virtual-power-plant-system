@@ -7,7 +7,6 @@ import org.gaurav.virtualpowerplantsystem.model.request.BatteriesFilterRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @UtilityClass
 public class BatterySearchSpecification {
@@ -15,7 +14,7 @@ public class BatterySearchSpecification {
     public static Specification<Battery> createSpecification(BatteriesFilterRequest batteriesFilterRequest) {
 
         return (root, query, builder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+            var predicates = new ArrayList<>();
 
             if (batteriesFilterRequest.getStartPostCode() != null) {
                 predicates.add(builder.greaterThanOrEqualTo(root.get("postCode"), batteriesFilterRequest.getStartPostCode()));

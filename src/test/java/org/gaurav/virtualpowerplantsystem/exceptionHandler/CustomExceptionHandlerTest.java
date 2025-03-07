@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,31 +33,32 @@ class CustomExceptionHandlerTest {
 
     @Test
     void whenArgumentInvalid_handleMethodArgumentNotValid_thenReturnsInvalidResponse() {
-        MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
-        BindingResult bindingResult = mock(BindingResult.class);
+        var ex = mock(MethodArgumentNotValidException.class);
+        var bindingResult = mock(BindingResult.class);
         when(ex.getBindingResult()).thenReturn(bindingResult);
 
-        ObjectError error = new ObjectError("field", "Invalid field");
+        var error = new ObjectError("field", "Invalid field");
         when(bindingResult.getAllErrors()).thenReturn(Collections.singletonList(error));
 
-        ResponseEntity<Object> responseEntity = customExceptionHandler.handleMethodArgumentNotValid(
+        var responseEntity = customExceptionHandler.handleMethodArgumentNotValid(
                 ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
 
+        assertNotNull(responseEntity);
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         ApiResponse<List<String>> apiResponse = (ApiResponse<List<String>>) responseEntity.getBody();
+        assertNotNull(apiResponse);
         assertEquals("Validation Failed", apiResponse.message());
     }
 
     @Test
     void whenExceptionOccurred_handleAllExceptions_thenReturnResponse() {
-        Exception ex = mock(Exception.class);
-
-        ResponseEntity<ApiResponse<Object>> response = mock(ResponseEntity.class);
+        var ex = mock(Exception.class);
+        var response = mock(ResponseEntity.class);
 
         try (MockedStatic<ResponseUtility> utilities = Mockito.mockStatic(ResponseUtility.class)) {
             utilities.when(ResponseUtility::internalServerErrorResponse).thenReturn(response);
 
-            ResponseEntity<ApiResponse<Object>> responseEntity = customExceptionHandler.handleAllExceptions(ex);
+            var responseEntity = customExceptionHandler.handleAllExceptions(ex);
             assertEquals(response, responseEntity);
         }
     }
