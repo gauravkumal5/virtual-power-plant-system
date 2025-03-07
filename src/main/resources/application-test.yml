@@ -1,0 +1,23 @@
+spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/testdb
+        username: root
+        password: root
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+            properties:
+                hibernate:
+                    dialect: org.hibernate.dialect.MySQLDialect
+        properties:
+            hibernate:
+                jdbc:
+                    batch_size: 1000
+                order_inserts: true
+                order_updates: true
+                generate_statistics: true
+
+app:
+    batch:
+        size: 1000

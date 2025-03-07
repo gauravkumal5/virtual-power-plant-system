@@ -1,0 +1,12 @@
+server:
+    port: 8080
+    tomcat:
+        max-http-form-post-size: 2KB
+
+spring:
+    profiles:
+        active: dev
+
+logging:
+    level:
+        org.springframework: INFO
