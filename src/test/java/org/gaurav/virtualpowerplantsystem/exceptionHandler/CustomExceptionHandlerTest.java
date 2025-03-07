@@ -47,7 +47,7 @@ class CustomExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
         ApiResponse<List<String>> apiResponse = (ApiResponse<List<String>>) responseEntity.getBody();
         assertNotNull(apiResponse);
-        assertEquals("Validation Failed", apiResponse.message());
+        assertEquals("Validation Failed", apiResponse.getMessage());
     }
 
     @Test
