@@ -52,19 +52,19 @@ class BatteryServiceImplTest {
         }).when(executor).execute(any(Runnable.class));
 
         List<BatteryRequest> batteryRequests = new ArrayList<>();
-        IntStream.range(0, 2500).
+        IntStream.range(0, 10).
                 forEach(i -> batteryRequests.add(BatteryRequest.builder().name("Midland").postcode("12345").capacity(100).build()));
 
         var batteryListRequest = BatteryListRequest.builder().batteryRequestList(batteryRequests).build();
         var savedBatteries = batteryRequests.stream().map(BatteryBuilder::buildBattery).toList();
 
-        when(batchConfig.getSize()).thenReturn(1000);
+        when(batchConfig.getSize()).thenReturn(2);
         when(batteryRepository.batchInsert(anyList(), anyInt())).thenReturn(savedBatteries);
         var listCompletableFuture = batteryService.saveBatteries(batteryListRequest);
         var batteryDtos = listCompletableFuture.join();
 
         assertEquals(batteryDtos.size(), savedBatteries.size());
-        verify(batteryRepository, times(1)).batchInsert(anyList(), anyInt());
+        verify(batteryRepository).batchInsert(argThat(batteries -> batteries.size() == 10), eq(2));
     }
 
     @Test
@@ -74,7 +74,6 @@ class BatteryServiceImplTest {
                 .endPostCode("2000")
                 .minCapacity(50)
                 .maxCapacity(100)
-
                 .build();
         var batteryOne = Battery.builder().name("Cannington").capacity(60).build();
         var batteryTwo = Battery.builder().name("Midland").capacity(70).build();
@@ -85,6 +84,7 @@ class BatteryServiceImplTest {
         BatteryGridDto batteryGridDto = batteryService.getBatteriesGrid(filterRequest);
 
         assertEquals(batteryGridDto.getBatteryNames().size(), batteryList.size());
+        verify(batteryRepository).findAll(any(Specification.class), any(Sort.class));
     }
 
     @Test
@@ -99,7 +99,6 @@ class BatteryServiceImplTest {
         when(batteryRepository.findAll(any(Specification.class), any(Sort.class))).thenReturn(Collections.emptyList());
         var batteryGridDto = batteryService.getBatteriesGrid(filterRequest);
         assertNull(batteryGridDto);
-
+        verify(batteryRepository).findAll(any(Specification.class), any(Sort.class));
     }
-
 }
